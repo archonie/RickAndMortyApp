@@ -35,6 +35,7 @@ final class RMService {
             completion(.failure(RMServiceError.failedToCreateRequest))
             return
         }
+
         
         let task = URLSession.shared.dataTask(with: urlRequest) { data, _, error in
              
