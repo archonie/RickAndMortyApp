@@ -34,7 +34,6 @@ final class RMService {
         completion: @escaping (Result<T, Error>) -> Void
     ){
         if let cachedData = cacheManager.cachedResponse(for: request.endpoint, url: request.url) {
-            
             do {
                 let result = try JSONDecoder().decode(type.self, from: cachedData)
                 completion(.success(result))

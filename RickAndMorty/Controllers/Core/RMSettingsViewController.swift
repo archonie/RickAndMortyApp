@@ -14,9 +14,17 @@ final class RMSettingsViewController: UIViewController {
         super.viewDidLoad()
         title = "Settings"
         view.backgroundColor = .systemBackground
+        addSearchButton()
     }
     
-
+    private func addSearchButton(){
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(didTapSearch))
+    }
+    
+    @objc
+    private func didTapSearch(){
+        
+    }
   
 
 }
