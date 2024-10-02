@@ -53,7 +53,7 @@ final class RMCharacterEpisodeCollectionViewCell: UICollectionViewCell {
     
     private func setUpConstraints() {
         NSLayoutConstraint.activate([
-            seasonLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
+            seasonLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
             seasonLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 10),
             seasonLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor),
             seasonLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.3),
