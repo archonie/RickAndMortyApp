@@ -12,6 +12,9 @@ final class RMEpisodeViewController: UIViewController, RMEpisodeListViewDelegate
 
     private let episodeListView = RMEpisodeListView()
     
+    
+    //MARK: - LifeCycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Episode"
@@ -20,6 +23,8 @@ final class RMEpisodeViewController: UIViewController, RMEpisodeListViewDelegate
         addSearchButton()
 
     }
+    
+    //MARK: - Private
     
     private func addSearchButton(){
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(didTapSearch))
