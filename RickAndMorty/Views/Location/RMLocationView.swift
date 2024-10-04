@@ -7,36 +7,38 @@
 
 import UIKit
 
+protocol RMLocationViewDelegate: AnyObject {
+    func rmLocationView(_ locationView: RMLocationView, didSelect location: RMLocation)
+}
+
+
+
+
 final class RMLocationView: UIView {
     
-    private var viewModel: RMLocationViewViewModel? {
-        didSet{
-            spinner.stopAnimating()
-            tableView.isHidden = false
-            tableView.reloadData()
-            UIView.animate(withDuration: 0.3) {
-                self.tableView.alpha = 1
-            }
-        }
-    }
+    public weak var delegate: RMLocationViewController?
     
-    private let tableView: UITableView = {
-        let table = UITableView()
-        table.translatesAutoresizingMaskIntoConstraints = false
-        table.alpha = 0
-        table.isHidden = true
-        table.register(RMLocationTableViewCell.self,
-                       forCellReuseIdentifier: RMLocationTableViewCell.cellIdentifier)
-        return table
-    }()
+    private var viewModel = RMLocationViewViewModel()
     
     private let spinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView()
+        let spinner = UIActivityIndicatorView(style: .large)
         spinner.translatesAutoresizingMaskIntoConstraints = false
         spinner.hidesWhenStopped = true
         return spinner
     }()
     
+
+    
+    private let tableView: UITableView = {
+        let table = UITableView(frame: .zero, style: .grouped)
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.alpha = 0
+        table.isHidden = true
+        table.register(RMLocationTableViewCell.self,
+                       forCellReuseIdentifier: RMLocationTableViewCell.cellIdentifier)
+        table.register(RMFooterLoadingTableFooterView.self, forHeaderFooterViewReuseIdentifier: RMFooterLoadingCollectionReusableView.identifier)
+        return table
+    }()
     
     //MARK: - Init
     
@@ -45,6 +47,8 @@ final class RMLocationView: UIView {
         backgroundColor = .systemBackground
         translatesAutoresizingMaskIntoConstraints = false
         addSubviews(tableView, spinner)
+        viewModel.delegate = self
+        viewModel.fetchLocations()
         spinner.startAnimating()
         addConstraints()
         configureTable()
@@ -57,8 +61,8 @@ final class RMLocationView: UIView {
     
     
     private func configureTable() {
-        tableView.delegate = self
-        tableView.dataSource = self
+        tableView.delegate = viewModel
+        tableView.dataSource = viewModel
     }
     
     private func addConstraints(){
@@ -75,38 +79,44 @@ final class RMLocationView: UIView {
         ])
     }
     
-    public func configure(with viewModel: RMLocationViewViewModel) {
-        self.viewModel = viewModel
-    }
-    
+  
 }
 
-extension RMLocationView: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        //Notify controller of selection
-    }
-}
 
-extension RMLocationView: UITableViewDataSource {
+
+
+
+extension RMLocationView: RMLocationViewViewModelDelegate {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.cellViewModels.count ?? 0
+    
+    func didSelectLocation(_ location: RMLocation) {
+        delegate?.rmLocationView(self, didSelect: location)
+    }
+   
+    func didFetchInitialLocations() {
+        spinner.stopAnimating()
+        tableView.isHidden = false
+        tableView.reloadData() //Initial fetch
+        UIView.animate(withDuration: 0.4) {
+            self.tableView.alpha = 1
+        }
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        guard let cellViewModels = viewModel?.cellViewModels else {
-            fatalError()
+    func didLoadMoreLocations(with newIndexPaths: [IndexPath]) {
+        tableView.performBatchUpdates {
+            self.tableView.insertRows(at: newIndexPaths, with: UITableView.RowAnimation.fade)
         }
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: RMLocationTableViewCell.cellIdentifier,
-            for: indexPath
-        ) as? RMLocationTableViewCell else {
-            fatalError()
-        }
-        let cellViewModel = cellViewModels[indexPath.row]
-        cell.textLabel?.text = cellViewModel.name
-        return cell
     }
+    
+    func didUpdateLoadingIndicator(_ isLoading: Bool) {
+        if isLoading {
+            let footerView = RMFooterLoadingTableFooterView(reuseIdentifier: RMFooterLoadingTableFooterView.identifier)
+            tableView.tableFooterView = footerView
+            footerView.startAnimating()
+        } else {
+            tableView.tableFooterView = nil
+        }
+    }
+    
+    
 }
