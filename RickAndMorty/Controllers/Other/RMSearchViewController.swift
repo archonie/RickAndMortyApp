@@ -30,7 +30,7 @@ class RMSearchViewController: UIViewController {
                 case .episode:
                     return "Search Episodes"
                 case .location:
-                    return "Search Locaitons"
+                    return "Search Locations"
                     
                 }
             }
@@ -40,12 +40,16 @@ class RMSearchViewController: UIViewController {
     }
     
     
-    private let config: Config
+    private let searchView: RMSearchView
+    
+    private let viewModel: RMSearchViewViewModel
     
     //MARK: - Init
     
     init(config: Config) {
-        self.config = config
+        let viewModel = RMSearchViewViewModel(config: config)
+        self.viewModel = viewModel
+        self.searchView = RMSearchView(frame: .zero, viewModel: viewModel)
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -57,11 +61,24 @@ class RMSearchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = config.type.title
+        title = viewModel.config.type.title
         view.backgroundColor = .systemBackground
+        view.addSubview(searchView)
+        addConstraints()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Search", style: .done, target: self, action: #selector(didTapExecuteSearch()))
     }
     
-
+    private func addConstraints() {
+        NSLayoutConstraint.activate([
+            searchView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
+            searchView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
+            searchView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ])
+    }
     
-
+    @objc
+    private func didTapExecuteSearch() {
+        //viewModel.executeSearch()
+    }
 }
