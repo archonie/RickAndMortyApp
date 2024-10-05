@@ -65,7 +65,12 @@ class RMSearchViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(searchView)
         addConstraints()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Search", style: .done, target: self, action: #selector(didTapExecuteSearch()))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Search", style: .done, target: self, action: #selector(didTapExecuteSearch))
+    }
+    
+    @objc
+    private func didTapExecuteSearch() {
+        //viewModel.executeSearch()
     }
     
     private func addConstraints() {
@@ -77,8 +82,5 @@ class RMSearchViewController: UIViewController {
         ])
     }
     
-    @objc
-    private func didTapExecuteSearch() {
-        //viewModel.executeSearch()
-    }
+   
 }
