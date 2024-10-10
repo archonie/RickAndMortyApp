@@ -308,15 +308,22 @@ extension RMSearchResultsView: UIScrollViewDelegate {
             let totalScrollViewFixedHeight = scrollView.frame.size.height
             
             if offset >= (totalContentHeight - totalScrollViewFixedHeight - 120) {
-                DispatchQueue.main.async {
-                    self?.showTableLoadingIndicator()
-                }
                 viewModel.fetchAdditionalLocations { [weak self] newResults in
                     // Refresh table
-                    self?.tableView.tableFooterView = nil
-                    self?.locationCellViewModels = newResults
-                    self?.tableView.reloadData()
-                   
+                    if newResults.count == self?.locationCellViewModels.count {
+                        self?.tableView.tableFooterView = nil
+                        self?.locationCellViewModels = newResults
+                        self?.tableView.reloadData()
+                    }
+                    else {
+                        self?.showTableLoadingIndicator()
+                        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { [weak self] t in
+                            self?.tableView.tableFooterView = nil
+                            self?.locationCellViewModels = newResults
+                            self?.tableView.reloadData()
+                            t.invalidate()
+                        }
+                    }
                 }
             }
             t.invalidate()
